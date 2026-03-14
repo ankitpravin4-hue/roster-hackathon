@@ -1,0 +1,27 @@
+# Python cache
+__pycache__/
+*.pyc
+
+# Environment variables
+.env
+
+# macOS
+.DS_Store
+
+# Databases
+*.db
+
+# Vector DB
+chroma/
+
+# Python virtual environment
+venv/
+.env/
+
+# Logs
+*.log
+EOgit rm -r --cached __pycache__
+git rm --cached .env
+git rm -r --cached chroma
+git rm --cached .DS_Store
+git rm --cached *.db
