@@ -9,16 +9,15 @@ import streamlit as st
 # working directory set to the `rosteriq/` folder. That means we should
 # use local (relative) imports, not `from rosteriq...`, otherwise
 # the `rosteriq` package will not be found in deployed environments.
-from rosteriq.agent import RosterIQAgent
-from rosteriq.dashboards.market_success_trend import build_market_success_trend
-from rosteriq.dashboards.pipeline_heatmap import build_pipeline_heatmap
-from rosteriq.dashboards.record_quality_chart import build_record_quality_chart
-from rosteriq.dashboards.retry_lift_chart import build_retry_lift_chart
-from rosteriq.procedures.retry_effectiveness_analysis import retry_effectiveness_analysis
-from rosteriq.procedures.triage_stuck_ros import triage_stuck_ros
-from rosteriq.tools.visualization_tool import stuck_ro_tracker
-from rosteriq.utils.helpers import csv_path, filter_dataframe, list_unique_values
-
+from agent import RosterIQAgent
+from dashboards.market_success_trend import build_market_success_trend
+from dashboards.pipeline_heatmap import build_pipeline_heatmap
+from dashboards.record_quality_chart import build_record_quality_chart
+from dashboards.retry_lift_chart import build_retry_lift_chart
+from procedures.retry_effectiveness_analysis import retry_effectiveness_analysis
+from procedures.triage_stuck_ros import triage_stuck_ros
+from tools.visualization_tool import stuck_ro_tracker
+from utils.helpers import csv_path, filter_dataframe, list_unique_values
 @st.cache_data(show_spinner=False)
 def _load_roster_df() -> pd.DataFrame:
     path = csv_path("roster_processing_details.csv")
