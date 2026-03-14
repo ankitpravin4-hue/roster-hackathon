@@ -1,5 +1,28 @@
 ## RosterIQ – Memory Driven Provider Roster Intelligence Agent
 
+## Problem
+
+Healthcare provider roster pipelines process thousands of files across multiple stages 
+(ingestion, validation, mapping, DART generation, SPS load, etc.). 
+
+When failures occur, operations teams struggle to:
+
+- Identify **stuck roster operations**
+- Understand **why certain markets have low success rates**
+- Trace issues back to **specific pipeline stages or organizations**
+
+Traditional monitoring dashboards show metrics but **do not provide root cause analysis**.
+
+## Solution
+
+RosterIQ is a **memory-driven AI operations copilot** that analyzes roster pipeline health, 
+connects operational data with market performance, and generates root-cause explanations 
+using a combination of:
+
+- Episodic memory
+- Procedural analytical workflows
+- Semantic domain knowledge
+
 RosterIQ is a hackathon-ready AI agent that helps operations, network, and analytics teams understand and debug provider roster pipelines. It combines Streamlit, LangChain, Pandas, DuckDB, ChromaDB, Plotly, and Tavily web search into a single interactive experience.
 
 ### Features
@@ -165,3 +188,51 @@ This project is intentionally modular so you can:
 - Extend the semantic memory with more domain facts.
 - Add new dashboards or tools without touching the core agent orchestration.
 
+## Hackathon Bonus Features
+
+### Proactive Monitoring
+RosterIQ automatically scans both operational datasets and surfaces alerts for:
+
+- Markets trending below SLA success thresholds
+- Newly stuck roster operations
+- Pipeline stages showing abnormal processing delays
+
+### Root Cause Chaining
+The agent automatically traces market performance issues through the pipeline:
+
+Market ↓  
+Pipeline Stage ↓  
+Organizations ↓  
+Likely Operational Cause
+
+This helps teams understand **why market success is dropping** instead of just showing metrics.
+
+### Memory-Driven AI Reasoning
+
+RosterIQ uses three complementary memory systems:
+
+| Memory Type | Purpose |
+|-------------|--------|
+| Episodic Memory | Stores past investigations and retrieves them when similar issues appear |
+| Procedural Memory | Encodes analytical workflows like stuck-RO triage and retry analysis |
+| Semantic Memory | Provides domain knowledge about pipeline stages, metrics, and flags |
+
+System Architexture Diagram
+## System Architecture
+
+User Question
+      ↓
+Streamlit UI
+      ↓
+RosterIQ Agent (LangChain)
+      ↓
+┌───────────────┬───────────────┬───────────────┐
+│ Episodic      │ Procedural    │ Semantic      │
+│ Memory        │ Workflows     │ Knowledge     │
+└───────────────┴───────────────┴───────────────┘
+      ↓
+Analytics Tools (Pandas + DuckDB)
+      ↓
+Visualizations (Plotly)
+      ↓
+Operational Insights
