@@ -1,0 +1,21 @@
+{
+  "pipeline_stages": {
+    "PRE_PROCESSING": "Initial intake and basic validation of roster files before detailed processing.",
+    "MAPPING_APPROVAL": "Business and mapping rule approval step prior to transformation.",
+    "ISF_GEN": "Intermediate staging file generation, often the heaviest transformation step.",
+    "DART_GEN": "Creation of downstream-ready artifacts (e.g., DART files) for partner systems.",
+    "DART_REVIEW": "Manual or automated review of generated DART files before validation.",
+    "DART_UI_VALIDATION": "UI-driven validation of DART output to catch structural and business-rule issues.",
+    "SPS_LOAD": "Final load into downstream systems such as SPS, after all upstream validations pass."
+  },
+  "metrics": {
+    "market_success_rate": "File-level success rate: percentage of roster files that completed processing successfully in a given market.",
+    "record_success_rate": "Record-level success rate: percentage of individual records across roster files that processed successfully.",
+    "failure_rate": "Percentage of failed units (files or records) out of all processed units for the given scope.",
+    "delay_factor": "Ratio of the observed stage duration to the historical or expected average duration for that stage."
+  },
+  "sla": {
+    "market_success_threshold": 90.0
+  }
+}
+

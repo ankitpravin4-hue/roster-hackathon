@@ -1,0 +1,9 @@
+streamlit
+pandas
+duckdb
+langchain
+langchain-openai
+pyyaml
+plotly
+tavily-python
+python-dotenv

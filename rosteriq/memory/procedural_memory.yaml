@@ -1,0 +1,34 @@
+pipeline_bottleneck:
+  description: >
+    Diagnose pipeline performance bottlenecks by comparing average stage durations
+    and identifying organizations contributing the most delay at the slowest stage.
+  steps:
+    - Compute average duration for each pipeline stage.
+    - Identify the stage with the highest average duration as the potential bottleneck.
+    - Rank organizations by median duration at the bottleneck stage.
+    - Inspect file status codes for the top delayed organizations.
+    - Recommend operational and engineering actions to reduce latency at that stage.
+
+market_failure:
+  description: >
+    Investigate markets where success rates fall below the SLA threshold by combining
+    file-level success metrics, record-level success metrics, and failure distribution
+    across organizations.
+  steps:
+    - Compare market success rate against the SLA threshold.
+    - If below threshold, compute record-level success, fail, and failure distributions.
+    - Identify top failing organizations by failure rate and failure share.
+    - Cross-check with historical issues from episodic memory.
+    - Recommend targeted remediation for high-impact organizations and markets.
+
+stuck_operations:
+  description: >
+    Triages stuck roster operations by surfacing stuck files, their latest pipeline
+    stage, and associated organizations and states.
+  steps:
+    - Filter roster files where IS_STUCK == 1.
+    - Return RO_ID, ORG_NM, CNT_STATE, LATEST_STAGE_NM, and FILE_STATUS_CD.
+    - Rank stuck files by duration and severity where available.
+    - Highlight organizations and states with clusters of stuck files.
+    - Recommend operational follow-up to unblock or rerun affected files.
+
