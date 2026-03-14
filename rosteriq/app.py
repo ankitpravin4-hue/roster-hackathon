@@ -64,28 +64,22 @@ def _market_state_col(df: pd.DataFrame) -> Optional[str]:
 def _run_proactive_monitoring(
     roster_df: pd.DataFrame, market_df: pd.DataFrame
 ) -> None:
-    """Display st.warning() alerts for markets below SLA, stuck ROs, and abnormal stage delays."""
-    alerts = []
+    """Display styled alert cards for markets below SLA, stuck ROs, and abnormal stage delays."""
+    alerts = []  # list of dicts: {"type": "sla"|"stuck"|"delay", ...}
 
-    # Markets with SCS_PERCENT < 90
+    # Markets with SCS_PERCENT < 90 — limit to top 5 worst (lowest SCS_PERCENT)
     scs_col = "SCS_PERCENT" if "SCS_PERCENT" in market_df.columns else (
         "SCS_PCT" if "SCS_PCT" in market_df.columns else None
     )
     state_col = _market_state_col(market_df)
     if scs_col and state_col:
         scs_series = pd.to_numeric(market_df[scs_col], errors="coerce")
-        below = market_df.loc[scs_series < 90]
-        for _, row in below.iterrows():
-            market_name = row.get(state_col, "Unknown")
-            pct = row.get(scs_col)
-            if pd.notna(pct):
-                try:
-                    pct_val = float(pct)
-                    alerts.append(
-                        f"Market {market_name} success rate dropped below SLA ({pct_val:.2f}%)"
-                    )
-                except (TypeError, ValueError):
-                    pass
+        below = market_df.loc[scs_series < 90].copy()
+        below = below.assign(_scs=scs_series.reindex(below.index))
+        # One row per market: take worst (min) rate per market, then top 5 worst
+        worst_per_market = below.groupby(state_col)["_scs"].min().sort_values(ascending=True).head(5)
+        for market_name, pct_val in worst_per_market.items():
+            alerts.append({"type": "sla", "market": str(market_name), "rate": float(pct_val)})
 
     # Stuck roster operations (IS_STUCK == True or 1)
     if "IS_STUCK" in roster_df.columns:
@@ -96,9 +90,9 @@ def _run_proactive_monitoring(
             if state_col_roster in roster_df.columns:
                 stuck_states = roster_df.loc[stuck_mask, state_col_roster].dropna().unique().tolist()
                 for s in stuck_states[:10]:  # cap to avoid spam
-                    alerts.append(f"New stuck roster operation detected in {s}")
+                    alerts.append({"type": "stuck", "state": str(s)})
             else:
-                alerts.append("New stuck roster operation detected")
+                alerts.append({"type": "stuck", "state": None})
 
     # Pipeline stage with abnormal average duration
     if "LATEST_STAGE_NM" in roster_df.columns and "DURATION_MINUTES" in roster_df.columns:
@@ -113,10 +107,37 @@ def _run_proactive_monitoring(
                 threshold = max(med * 2.0, 1.0)
                 abnormal = stage_avg[stage_avg >= threshold]
                 for stage_name in abnormal.index[:5]:
-                    alerts.append(f"{stage_name} stage showing abnormal delay")
+                    alerts.append({"type": "delay", "stage": str(stage_name)})
 
-    for msg in alerts:
-        st.warning(f"ALERT: {msg}")
+    if not alerts:
+        return
+
+    st.subheader("🚨 Proactive Monitoring Alerts")
+    card_style = (
+        "background-color:#1e293b;"
+        "border-left:6px solid #f59e0b;"
+        "padding:12px;"
+        "border-radius:8px;"
+        "margin-bottom:10px;"
+        "font-weight:500;"
+    )
+    for a in alerts:
+        if a["type"] == "sla":
+            msg = (
+                f"🚨 <b>SLA Alert</b> — Market <b>{a['market']}</b> success rate dropped to "
+                f"<b>{a['rate']:.2f}%</b>"
+            )
+        elif a["type"] == "stuck":
+            loc = f" in <b>{a['state']}</b>" if a.get("state") else ""
+            msg = f"🚨 <b>Stuck Operation</b> — New stuck roster operation detected{loc}"
+        else:
+            msg = (
+                f"🚨 <b>Delay Alert</b> — <b>{a['stage']}</b> stage showing abnormal delay"
+            )
+        st.markdown(
+            f'<div style="{card_style}">{msg}</div>',
+            unsafe_allow_html=True,
+        )
 
 
 def _build_root_cause_chain(
